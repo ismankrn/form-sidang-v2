@@ -412,10 +412,10 @@ def index():
                     # uncomment config yang dipilih
                     # config for heroku
                     # config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
-                    # config = pdfkit.configuration(wkhtmltopdf='./bin/wkhtmltopdf')
-                    # pdf = pdfkit.from_string(html, False,configuration=config, css=css)
+                    config = pdfkit.configuration(wkhtmltopdf='./bin/wkhtmltopdf')
+                    pdf = pdfkit.from_string(html, False,configuration=config, css=css)
                     # config for local pc
-                    pdf = pdfkit.from_string(html, False, css=css)
+                    # pdf = pdfkit.from_string(html, False, css=css)
                     response = make_response(pdf)
                     response.headers["Content-Type"] = "application/pdf"
                     response.headers["Content-Disposition"] = headers_filename
