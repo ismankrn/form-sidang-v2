@@ -323,12 +323,14 @@ def index():
             DPg22 = request.form['DPg22']
             DPg23 = request.form['DPg23']
 
+            
             editable = request.form['editable']
             KL = request.form['KL']
             # IA = request.form['IA']
             RVS = request.form['RVS']
             time = request.form['current_time']
             ruangan = request.form['ruangan']
+            
 
             if(current_time!=time and time!=""):
                 current_time=time
@@ -338,6 +340,14 @@ def index():
                     cetak = request.form['cetak']
                 except:
                     cetak = "0"
+                try:
+                    submit = request.form['submit']
+                except:
+                    submit = "0"
+                try:
+                    belum_submit = request.form['belum_submit']
+                except:
+                    belum_submit = "1"
 
                 LPb = hitungPembimbing(DPb11,DPb12,DPb13,DPb21,DPb22,DPb23)
                 LPg = hitungPenguji(DPg11,DPg12,DPg13,DPg21,DPg22,DPg23)
@@ -359,9 +369,15 @@ def index():
                                     KL=KL,
                                     pbb2=pbb2, pgj1=pgj1, pgj2=pgj2, cetak=cetak,
                                     RVS=RVS,  message="success" ,date=today,
-                                    dead_rev=dead_rev, current_time=current_time, ruangan=ruangan, editable=editable)
+                                    dead_rev=dead_rev, current_time=current_time, ruangan=ruangan, editable=editable,belum_submit=belum_submit)
                 # return cetak
-                if (cetak=="1"):
+                try:
+                    logout = request.form['logout']
+                except:
+                    logout = "0"
+                if (logout=="1"):
+                    return redirect(url_for("clearSession"))
+                if(submit=="1"):
                     # recap
                     recap = joblib.load(data_recap)
                     new_today = dtm.datetime.strptime(today, '%d-%b-%Y')
@@ -370,7 +386,25 @@ def index():
                     "Pembimbing 1": pbb1, "Pembimbing 2": pbb2, "Penguji 1": pgj1, "Penguji 2": pgj2}, ignore_index=True)
                     joblib.dump(recap, data_recap)
                     # recap.to_excel(data_rekap_xlsx, index=None)
-
+                    belum_submit = "0"
+                    html = render_template("index.html",
+                                    DPb11=DPb11, DPb12=DPb12, DPb13=DPb13,
+                                    DPb21=DPb21, DPb22=DPb22, DPb23=DPb23,
+                                    LPb1=LPb[0] , LPb2=LPb[1] , LPb3=LPb[2] ,
+                                    DPg11=DPg11, DPg12=DPg12, DPg13=DPg13,
+                                    DPg21=DPg21, DPg22=DPg22, DPg23=DPg23,
+                                    LPg1=LPg[0] , LPg2=LPg[1] , LPg3=LPg[2] ,
+                                    LNP1=LNP[0] , LNP2=LNP[1] , LNP3=LNP[2] ,
+                                    LNA1=LNA[0] , LNA2=LNA[1] , LNA3=LNA[2] ,
+                                    LIA=LIA, INA=INA, NIM=NIM,
+                                    MHS=MHS, JTA=JTA, pbb1=pbb1,
+                                    KL=KL,
+                                    pbb2=pbb2, pgj1=pgj1, pgj2=pgj2, cetak=cetak,
+                                    RVS=RVS,  message="success" ,date=today,
+                                    dead_rev=dead_rev, current_time=current_time, ruangan=ruangan, editable=editable,belum_submit=belum_submit)
+                    return html
+                    
+                elif(cetak=="1"):
                     # print pdf
                     filename_pdf = "Form-Sidang-"+NIM+"-"+MHS+".pdf"
                     headers_filename = "attachment; filename="+filename_pdf
@@ -407,7 +441,7 @@ def index():
                                             JTA=session['dataMhs2'], pbb1=session['dataMhs3'], pbb2=session['dataMhs4'],
                                             pgj1=session['dataMhs5'], pgj2=session['dataMhs6'], ruangan=session['dataMhs7'],
                                             cetak=cetak, message="normal",date=today, lec_name_list=lec_name_list,
-                                            dead_rev=dead_rev, current_time=current_time,editable=editable)
+                                            dead_rev=dead_rev, current_time=current_time,editable=editable,belum_submit="1")
     else:
         return redirect(url_for("home"))
         return render_template("index.html",  cetak=cetak, message="normal",date=today,dead_rev=dead_rev, current_time=current_time,editable=editable)
