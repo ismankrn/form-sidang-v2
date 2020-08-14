@@ -323,14 +323,14 @@ def index():
             DPg22 = request.form['DPg22']
             DPg23 = request.form['DPg23']
 
-            
+
             editable = request.form['editable']
             KL = request.form['KL']
             # IA = request.form['IA']
             RVS = request.form['RVS']
             time = request.form['current_time']
             ruangan = request.form['ruangan']
-            
+
 
             if(current_time!=time and time!=""):
                 current_time=time
@@ -403,7 +403,7 @@ def index():
                                     RVS=RVS,  message="success" ,date=today,
                                     dead_rev=dead_rev, current_time=current_time, ruangan=ruangan, editable=editable,belum_submit=belum_submit)
                     return html
-                    
+
                 elif(cetak=="1"):
                     # print pdf
                     filename_pdf = "Form-Sidang-"+NIM+"-"+MHS+".pdf"
@@ -411,8 +411,8 @@ def index():
                     css = ["static/css/bootstrap.min.css","static/style.css"]
                     # uncomment config yang dipilih
                     # config for heroku
-                    # config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
-                    config = pdfkit.configuration(wkhtmltopdf='./bin/wkhtmltopdf')
+                    config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
+                    # config = pdfkit.configuration(wkhtmltopdf='./bin/wkhtmltopdf')
                     pdf = pdfkit.from_string(html, False,configuration=config, css=css)
                     # config for local pc
                     # pdf = pdfkit.from_string(html, False, css=css)
