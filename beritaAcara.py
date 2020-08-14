@@ -412,10 +412,10 @@ def index():
                     # uncomment config yang dipilih
                     # config for heroku
                     # config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
-                    config = pdfkit.configuration(wkhtmltopdf='./bin/wkhtmltopdf')
-                    pdf = pdfkit.from_string(html, False,configuration=config, css=css)
+                    # config = pdfkit.configuration(wkhtmltopdf='./bin/wkhtmltopdf')
+                    # pdf = pdfkit.from_string(html, False,configuration=config, css=css)
                     # config for local pc
-                    # pdf = pdfkit.from_string(html, False, css=css)
+                    pdf = pdfkit.from_string(html, False, css=css)
                     response = make_response(pdf)
                     response.headers["Content-Type"] = "application/pdf"
                     response.headers["Content-Disposition"] = headers_filename
@@ -432,15 +432,10 @@ def index():
 
     if "dataMhs0" in session:
         editable="0"
-        lec_code = joblib.load(data_lecturer)
-        lec_code.fillna(0, inplace=True)
-        lec_name_list = lec_code.Nama.values.tolist()
-        lec_name_list.remove(0)
-        print(lec_name_list)
         return render_template("index.html", NIM=session['dataMhs0'], MHS=session['dataMhs1'],
                                             JTA=session['dataMhs2'], pbb1=session['dataMhs3'], pbb2=session['dataMhs4'],
                                             pgj1=session['dataMhs5'], pgj2=session['dataMhs6'], ruangan=session['dataMhs7'],
-                                            cetak=cetak, message="normal",date=today, lec_name_list=lec_name_list,
+                                            cetak=cetak, message="normal",date=today,
                                             dead_rev=dead_rev, current_time=current_time,editable=editable,belum_submit="1")
     else:
         return redirect(url_for("home"))
