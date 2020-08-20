@@ -752,7 +752,20 @@
             <!-- <br> -->
             <h5><b>Catatan Revisi:</b></h5>
             <!-- <textarea id="RVS" name="RVS" rows="13" style="width:100%;">{{RVS}}</textarea> -->
-            <textarea id="RVS" name="RVS" rows="21" style="width:100%;resize:none;overflow:hidden">{{RVS}}</textarea>
+            {% if(cetak=="0"): %}
+            <!-- <textarea id="RVS" name="RVS" rows="21" style="width:100%;resize:none;overflow:hidden">{{RVS}}</textarea> -->
+            <textarea id="RVS" name="RVS" rows="21" style="width:100%;resize:none;overflow:hidden"></textarea>
+            {% else: %}
+            <table style="width: 100%;" id="table-mahasiswa">
+            <tr id="Content-border">
+            <th>
+              {% for rvs in RVS_2 %}
+              {{rvs}} <br>
+              {% endfor %}
+            </th>
+            </tr>
+            </table>
+            {% endif %}
             <br><br>
             <table style="width: 100%;" id="Table-border">
                 <tr>
