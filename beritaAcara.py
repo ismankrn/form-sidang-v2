@@ -328,6 +328,7 @@ def index():
             KL = request.form['KL']
             # IA = request.form['IA']
             RVS = request.form['RVS']
+            RVS_2 = RVS.splitlines( )
             time = request.form['current_time']
             ruangan = request.form['ruangan']
 
@@ -368,7 +369,7 @@ def index():
                                     MHS=MHS, JTA=JTA, pbb1=pbb1,
                                     KL=KL,
                                     pbb2=pbb2, pgj1=pgj1, pgj2=pgj2, cetak=cetak,
-                                    RVS=RVS,  message="success" ,date=today,
+                                    RVS=RVS, RVS_2=RVS_2,  message="success" ,date=today,
                                     dead_rev=dead_rev, current_time=current_time, ruangan=ruangan, editable=editable,belum_submit=belum_submit)
                 # return cetak
                 try:
