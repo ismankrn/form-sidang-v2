@@ -518,7 +518,7 @@
                                 {% endif %} -->
                                 {% if belum_submit =="1" : %}
                                 <button type="submit" class="btn btn-outline-primary btn-lg" id="hitung" name="hitung" value=1>Hitung</button>
-                        
+
                                 {% endif %}
                                 {% if(message=="success"): %}
                                     {% if belum_submit =="1" : %}
@@ -536,7 +536,7 @@
                                         <div class="row">
                                             <div class="">
                                                 <button type="submit" class="btn btn-outline-primary btn-lg" id="cetak" name="cetak" value="1" >Cetak</button>
-                                            
+
                                                 <button type="button" class="btn btn-link btn-lg" data-toggle="modal" data-target="#modalLogout">
                                                     Logout
                                                 </button>
@@ -547,7 +547,7 @@
                                         </div>
                                         <div class="row">
                                             <h6 style="color: #0000FF; text-align: center;">Submit Nilai Berhasil</h4>
-                                        </div> 
+                                        </div>
                                     </div>
                                     {% endif %}
                                     <!-- <button type="submit" class="btn btn-outline-primary btn-lg" id="cetak" name="cetak" value="1" >Submit</button> -->
@@ -588,7 +588,7 @@
                                         </button>
                                         </div>
                                         <div class="modal-body">
-                                        Pastikan file sudah di download 
+                                        Pastikan file sudah di download
                                         </div>
                                         <div class="modal-footer">
                                             <button type="submit"  class="btn btn-outline-primary btn-lg" id="logout" name="logout" value="1" >Ya, Logout</button>
@@ -749,10 +749,11 @@
             <br>
             <h5><b>Batas akhir revisi: {{dead_rev}}</b></h5>
             <p>(Maksimal revisi hingga 15 (lima belas) hari kalender. Jika lebih dari 15 (lima belas) hari maka indeks nilai TA turun menjadi satu tingkat dari nilai indeks hasil keputusan sidang TA. Jika lebih dari 30 (tiga puluh) hari maka sidang ulang)</p>
-            <br>
+            <!-- <br> -->
             <h5><b>Catatan Revisi:</b></h5>
-            <textarea id="RVS" name="RVS" rows="13" style="width:100%;">{{RVS}}</textarea>
-            <br><br><br><br><br>
+            <!-- <textarea id="RVS" name="RVS" rows="13" style="width:100%;">{{RVS}}</textarea> -->
+            <textarea id="RVS" name="RVS" rows="21" style="width:100%;resize:none;overflow:hidden">{{RVS}}</textarea>
+            <br><br>
             <table style="width: 100%;" id="Table-border">
                 <tr>
                     <th><h5><b>Menyetujui untuk direvisi</b></h5></th>
@@ -817,6 +818,15 @@
 
 
     </script>
+    <!-- <script>
+        $('#RVS').each(function () {
+            this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+            this.setAttribute('style', 'width:100%');
+            }).on('input', function () {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+                });
+    </script> -->
     {% if(cetak=="1"): %}
     <style>
         /* font size untuk print */
