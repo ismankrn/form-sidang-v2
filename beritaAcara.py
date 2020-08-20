@@ -432,14 +432,16 @@ def index():
 
     if "dataMhs0" in session:
         editable="0"
+        lec_code = joblib.load(data_lecturer)
+        lec_name_list = lec_code.Nama.values.tolist()
         return render_template("index.html", NIM=session['dataMhs0'], MHS=session['dataMhs1'],
                                             JTA=session['dataMhs2'], pbb1=session['dataMhs3'], pbb2=session['dataMhs4'],
                                             pgj1=session['dataMhs5'], pgj2=session['dataMhs6'], ruangan=session['dataMhs7'],
-                                            cetak=cetak, message="normal",date=today,
+                                            cetak=cetak, message="normal",date=today,lec_name_list=lec_name_list,
                                             dead_rev=dead_rev, current_time=current_time,editable=editable,belum_submit="1")
     else:
         return redirect(url_for("home"))
-        return render_template("index.html",  cetak=cetak, message="normal",date=today,dead_rev=dead_rev, current_time=current_time,editable=editable)
+        # return render_template("index.html",  cetak=cetak, message="normal",date=today,dead_rev=dead_rev, current_time=current_time,editable=editable)
 
 @app.route("/clear")
 def clearSession():
@@ -496,7 +498,6 @@ def cariMhs(nim,passwd_user):
                 # list kode dosen
                 lec_code_list = lec_code.Kode.values.tolist()
                 lec_name_list = lec_code.Nama.values.tolist()
-                # lec_name_list.remove("nan")
                 # grab nama pembimbing 1
                 pbb1 = sel_data["Pembimbing 1"].values[0]
                 if pbb1 in lec_code_list:
