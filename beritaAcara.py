@@ -166,7 +166,7 @@ def unduh():
             s3 = boto3.client('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
             obj = s3.get_object(Bucket=bucket_name, Key=object_key)
             data = obj['Body'].read()
-            recap = pd.read_excel(io.BytesIO(data), encoding='utf-8')
+            recap = pd.read_excel(io.BytesIO(data))
 
             begin = dtm.date(awal[0], awal[1], awal[2]) # input dari date picker kiri (from)
             end = dtm.date(akhir[0], akhir[1], akhir[2]) # input dari date picker kanan (until)
@@ -199,7 +199,7 @@ def unggah():
             s3 = boto3.client('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
             obj = s3.get_object(Bucket=bucket_name, Key=object_key)
             data = obj['Body'].read()
-            schedule = pd.read_excel(io.BytesIO(data), encoding='utf-8')
+            schedule = pd.read_excel(io.BytesIO(data))
 
             # grab upload excel name
             excel_name = file.filename
@@ -432,7 +432,7 @@ def index():
                     s3 = boto3.client('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
                     obj = s3.get_object(Bucket=bucket_name, Key=object_key)
                     data = obj['Body'].read()
-                    recap = pd.read_excel(io.BytesIO(data), encoding='utf-8')
+                    recap = pd.read_excel(io.BytesIO(data))
 
                     new_today = dtm.datetime.strptime(today, '%d-%b-%Y')
                     recap = recap.append({"Tanggal_Ref": new_today,"Nama": MHS, "NIM": NIM, "Judul": JTA, "Nilai": INA,
@@ -538,7 +538,7 @@ def cariMhs(nim,passwd_user):
     s3 = boto3.client('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
     obj = s3.get_object(Bucket=bucket_name, Key=object_key)
     data = obj['Body'].read()
-    schedule = pd.read_excel(io.BytesIO(data), encoding='utf-8')
+    schedule = pd.read_excel(io.BytesIO(data))
 
     # recap = joblib.load(data_recap)
     # load recap from s3
@@ -546,7 +546,7 @@ def cariMhs(nim,passwd_user):
     s3 = boto3.client('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
     obj = s3.get_object(Bucket=bucket_name, Key=object_key)
     data = obj['Body'].read()
-    recap = pd.read_excel(io.BytesIO(data), encoding='utf-8')
+    recap = pd.read_excel(io.BytesIO(data))
 
     nim_list = schedule.NIM.values.tolist()
     recap_nim = recap.NIM.values.tolist()
