@@ -168,8 +168,12 @@ def unduh():
             data = obj['Body'].read()
             recap = pd.read_excel(io.BytesIO(data))
 
-            begin = dtm.date(awal[0], awal[1], awal[2]) # input dari date picker kiri (from)
-            end = dtm.date(akhir[0], akhir[1], akhir[2]) # input dari date picker kanan (until)
+            begin = dtm.datetime(awal[0], awal[1], awal[2]) # input dari date picker kiri (from)
+            end = dtm.datetime(akhir[0], akhir[1], akhir[2]) # input dari date picker kanan (until)
+
+
+            # begin = dtm.date(awal[0], awal[1], awal[2]) # input dari date picker kiri (from)
+            # end = dtm.date(akhir[0], akhir[1], akhir[2]) # input dari date picker kanan (until)
             # saya belum tahu output dari date picker seperti apa, asumsi saya masih bisa diubah ke format datetime
             # filter
             pick_recap = recap[(recap.Tanggal_Ref >= begin) & (recap.Tanggal_Ref <= end)]
