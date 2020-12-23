@@ -60,7 +60,7 @@ def home():
                 return render_template("home.html",message="tidak ada")
             passwd_user = request.form["password"]
             try:
-                nim = nim
+                nim = int(nim)
             except:
                 return render_template("home.html",message="tidak ada")
             dataMhs = cariMhs(nim,passwd_user)
