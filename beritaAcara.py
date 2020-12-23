@@ -59,10 +59,6 @@ def home():
                 # return redirect(url_for("home"))
                 return render_template("home.html",message="tidak ada")
             passwd_user = request.form["password"]
-            try:
-                nim = int(nim)
-            except:
-                return render_template("home.html",message="tidak ada")
             dataMhs = cariMhs(nim,passwd_user)
             if (dataMhs=="tidak ada"):
                 return render_template("home.html",message=dataMhs)
