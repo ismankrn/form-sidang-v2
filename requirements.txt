@@ -25,3 +25,6 @@ statsmodels
 joblib
 openpyxl
 xlrd
+boto3
+botocore
+xlsxwriter
