@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <!-- <br><br><br> -->
+    <div class="container" style="min-height: 75px;">
+        {% if submit=="true" :%}
+        <h4 style="color: #0000FF; text-align: center;">Proses Submit Nilai Berhasil</h4>
+        {% endif %}
+    </div>
+    <div class="container d-flex justify-content-center" id="form-home" style="min-height: 400px;">
+        <form action="{{ url_for('rekap') }}" id="my-form" method="POST" enctype=multipart/form-data>
+            <h5>Silahkan isi NIM Mahasiswa</h5>
+            <div class="form-group row">
+                <label for="NIM" class="col-4 col-form-label">NIM</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" name="NIM" id="NIM" >
+                </div>
+            </div>
+            <div class="container" style="min-height: 40px;min-width: 100px; text-align: center;">
+                {% if(message=="tidak ada"): %}
+                    <p class="alert_" style="text-align: center;">NIM mahasiswa tidak ditemukan</p>
+                {% endif %}
+                <!-- {% if(cetak=="1"): %}
+                    <p class="alert_" style="text-align: center;">Berhasil mengunduh rekap</p>
+                {% endif %} -->
+
+            </div>
+            <br>
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary btn-lg" id="cari" name="cari" value="1">Cetak Ulang BA</button>
+                <!-- <a href="#" class="btn btn-outline-primary btn-lg">Cari</a> -->
+                <!-- &nbsp;  &nbsp; -->
+                <!-- <button type="submit" class="btn btn-outline-primary btn-lg" id="cari" name="cari" value="0">Skip</button> -->
+            </div>
+        </form>
+    </div>
+    <div class="container">
+        <a href="{{ url_for('admin') }}" class="btn btn-primary">Kembali</a>
+    </div>
+{% endblock %}
