@@ -18,13 +18,13 @@ urllib3==1.25.5
 Werkzeug==0.16.0
 pdfkit
 python-csv
-pandas==1.0.1
+pandas==1.2.0
 numpy
 python-pdf
 statsmodels
 joblib
 openpyxl
-xlrd
+xlrd==1.2.0
 boto3
 botocore
 xlsxwriter
