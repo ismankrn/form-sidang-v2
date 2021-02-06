@@ -18,7 +18,7 @@ urllib3==1.25.5
 Werkzeug==0.16.0
 pdfkit
 python-csv
-pandas
+pandas==1.0.1
 numpy
 python-pdf
 statsmodels
