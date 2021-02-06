@@ -296,6 +296,7 @@ def rekap():
             except:
                 recap_rep = "tidak ada file recap_reprint"
 
+            print(recap_rep)
             # Cek data mahasiswa dari recap_reprint
             nim_list = recap_rep.NIM.values.tolist()
             if nim in nim_list:
