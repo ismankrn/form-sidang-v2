@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request, send_from_directory, make_response, session, send_file
+from flask import Flask, redirect, url_for, render_template, request, send_from_directory, make_response, session
 import os
 import pandas as pd
 import numpy as np
@@ -9,12 +9,11 @@ from datetime import date,datetime
 import pytz
 import joblib
 import secrets
+import secret
 import string
-import boto3
-import botocore
-import io
-import xlsxwriter
+import dropbox
 
+dbx = dropbox.Dropbox(secret.TOKEN)
 
 app = Flask(__name__)
 app.secret_key = "form-sidang-IKN"
@@ -30,10 +29,6 @@ data_recap_reprint = "/".join([path_data,"recap_reprint.p"])
 data_lecturer = "/".join([path_data,"lec_code.p"])
 data_schedule = "/".join([path_data,"schedule.p"])
 data_rekap_xlsx = "/".join([path_data,"Rekap-Sidang-TA.xlsx"])
-
-aws_id = 'AKIA2RUFJEJBCZ3JNDNM'
-aws_secret = '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'
-bucket_name = 'form-sidang-fif'
 
 # today = date.today()
 # dead_rev = today + dtm.timedelta(days=15)
@@ -104,7 +99,8 @@ def login():
             except:
                 Login = "0"
             if(Login=="1"):
-                login = joblib.load(data_admin)
+                # login = joblib.load(data_admin)
+                login = pd.read_csv(secret.admin)
                 login_list = login.username.values.tolist()
 
                 # misal input username di-assign sebagai variable "username"
@@ -158,16 +154,12 @@ def unduh():
 
             # load recap
             # recap = joblib.load(data_recap)
-            object_key = 'heroku/recap.xlsx'
-            s3 = boto3.client('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-            obj = s3.get_object(Bucket=bucket_name, Key=object_key)
-            data = obj['Body'].read()
-            recap = pd.read_excel(io.BytesIO(data))
-
+            recap = pd.read_csv(secret.recap)
             begin = dtm.date(awal[0], awal[1], awal[2]) # input dari date picker kiri (from)
             end = dtm.date(akhir[0], akhir[1], akhir[2]) # input dari date picker kanan (until)
             # saya belum tahu output dari date picker seperti apa, asumsi saya masih bisa diubah ke format datetime
             # filter
+            recap["Tanggal_Ref"] = pd.to_datetime(recap["Tanggal_Ref"]).dt.date
             pick_recap = recap[(recap.Tanggal_Ref >= begin) & (recap.Tanggal_Ref <= end)]
             pick_recap = pick_recap.iloc[:,1:]
             # bikin folder baru "output" di dir "data"
@@ -189,14 +181,7 @@ def unggah():
             file = request.files["file"]
             # load schedule (.p)
             # schedule = joblib.load(data_schedule)
-
-            bucket_name = 'form-sidang-fif'
-            object_key = 'heroku/schedule.xlsx'
-            s3 = boto3.client('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-            obj = s3.get_object(Bucket=bucket_name, Key=object_key)
-            data = obj['Body'].read()
-            schedule = pd.read_excel(io.BytesIO(data))
-
+            schedule = pd.read_csv(secret.schedule)
             # grab upload excel name
             excel_name = file.filename
             destination = "/".join([path_jadwal_sidang,file.filename])
@@ -230,48 +215,22 @@ def unggah():
                 # concat
                 new_schedule = pd.concat([diff_schedule, inp_schedule], axis=0)
                 new_schedule.reset_index(drop=True, inplace=True)
+                # save to excel
+                excel_pwd_name = file.filename.replace(".xlsx","_pwd.xlsx")
+                path_excel_pwd = "/".join(["data/jadwal_sidang/",excel_pwd_name])
+                add_schedule.to_excel(path_excel_pwd, index=None)
+
+
 
                 # save as pickle
                 # joblib.dump(new_schedule, data_schedule)
-                # save to s3
-                with io.BytesIO() as output:
-                    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                        new_schedule.to_excel(writer, index=None)
-                    data = output.getvalue()
-                bucket_name = 'form-sidang-fif'
-                object_name = 'heroku/schedule.xlsx'
+                dbx.files_upload(new_schedule.to_csv(index=None).encode(), "/schedule.csv", mode=dropbox.files.WriteMode.overwrite)
 
-                s3 = boto3.resource('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-                s3.Bucket(bucket_name).put_object(Key=object_name, Body=data)
-
-
-                # save to excel
-                # excel_pwd_name = file.filename.replace(".xlsx","_pwd.xlsx")
-                # path_excel_pwd = "/".join(["data/jadwal_sidang/",excel_pwd_name])
-                # add_schedule.to_excel(path_excel_pwd, index=None)
-                # return render_template("unggah.html",download="true", filenames=excel_pwd_name, tipe="1")
-
-                # save to s3
-                excel_pwd_name = file.filename.replace(".xlsx","_pwd.xlsx")
-                with io.BytesIO() as output:
-                    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                        add_schedule.to_excel(writer, index=None)
-                    data = output.getvalue()
-                bucket_name = 'form-sidang-fif'
-                object_name = "/".join(["heroku/jadwal_sidang",excel_pwd_name])
-                print(object_name)
-
-                s3 = boto3.resource('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-                s3.Bucket(bucket_name).put_object(Key=object_name, Body=data)
-
-                # download from s3
-                bucket = "form-sidang-fif"
-                s3 = boto3.resource('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-                filename = excel_pwd_name
-                output = f"./{filename}"
-                s3.Bucket(bucket).download_file(object_name, output)
-                return send_file(output, as_attachment=True)
-
+                # path_jadwal = os.path.join(APP_ROOT, 'data/jadwal_sidang')
+                return render_template("unggah.html",download="true", filenames=excel_pwd_name, tipe="1")
+                # return send_from_directory(path_jadwal,filename=excel_pwd_name, as_attachment=True)
+                # return render_template("unggah.html",download="true", filenames=excel_pwd_name)
+                # return path_excel_pwd
         return render_template("unggah.html")
     else:
         return redirect(url_for("login"))
@@ -288,17 +247,15 @@ def rekap():
             # nim = int(nim)
             try:
                 # recap_rep = joblib.load(data_recap_reprint)
-                object_key = 'heroku/recap_reprint.xlsx'
-                s3 = boto3.client('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-                obj = s3.get_object(Bucket=bucket_name, Key=object_key)
-                data = obj['Body'].read()
-                recap_rep = pd.read_excel(io.BytesIO(data))
+                recap_rep = pd.read_csv(secret.recap_rep)
             except:
                 recap_rep = "tidak ada file recap_reprint"
 
-            print(recap_rep)
             # Cek data mahasiswa dari recap_reprint
             nim_list = recap_rep.NIM.values.tolist()
+            print(recap_rep)
+            print(nim_list)
+            nim = int(nim)
             if nim in nim_list:
                 sel_data = recap_rep[recap_rep.NIM == nim]
                 NIM = nim
@@ -356,12 +313,9 @@ def rekap():
                 headers_filename = "attachment; filename="+filename_pdf
                 css = ["static/css/bootstrap.min.css","static/style.css"]
                 ## uncomment config yang dipilih
-                    # config for heroku :
-                # config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
-                    # config for local ver 1 :
-                # config = pdfkit.configuration(wkhtmltopdf='./bin/wkhtmltopdf')
-                    # config for local ver 2 :
+                # config for local ver 1
                 # path_wkhtmltopdf = "/usr/local/bin/wkhtmltopdf"
+                # config for heroku :
                 path_wkhtmltopdf = "./bin/wkhtmltopdf"
                 config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
 
@@ -539,42 +493,20 @@ def index():
                 if(submit=="1"):
                     # recap
                     # recap = joblib.load(data_recap)
-                    bucket_name = 'form-sidang-fif'
-                    object_key = 'heroku/recap.xlsx'
-                    s3 = boto3.client('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-                    obj = s3.get_object(Bucket=bucket_name, Key=object_key)
-                    data = obj['Body'].read()
-                    recap = pd.read_excel(io.BytesIO(data))
-
+                    recap = pd.read_csv(secret.recap)
                     new_today = dtm.datetime.strptime(today, '%d-%b-%Y')
                     # recap
                     recap = recap.append({"Tanggal_Ref": new_today,"Nama": MHS, "NIM": NIM, "Judul": JTA,
                     "CLO 1": indexing(LNA[0]), "CLO 2": indexing(LNA[1]), "CLO 3": indexing(LNA[2]), "Nilai Akhir": INA,
                     "Indeks Akhir": LIA, "Status": KL, "Tanggal": today, "Waktu": current_time,
                     "Pembimbing 1": pbb1, "Pembimbing 2": pbb2, "Penguji 1": pgj1, "Penguji 2": pgj2}, ignore_index=True)
-
+                    recap["Tanggal_Ref"] = pd.to_datetime(recap["Tanggal_Ref"]).dt.date
                     # joblib.dump(recap, data_recap)
-                    # save recap to s3
-                    with io.BytesIO() as output:
-                        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                            recap.to_excel(writer, index=None)
-                        data = output.getvalue()
-                    object_name = 'heroku/recap.xlsx'
-
-                    s3 = boto3.resource('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-                    s3.Bucket(bucket_name).put_object(Key=object_name, Body=data)
-
-
+                    dbx.files_upload(recap.to_csv(index=None).encode(), "/recap.csv", mode=dropbox.files.WriteMode.overwrite)
                     # recap reprint
                     # recap_reprint = joblib.load(data_recap_reprint)
-
-                    object_key = 'heroku/recap_reprint.xlsx'
-                    s3 = boto3.client('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-                    obj = s3.get_object(Bucket=bucket_name, Key=object_key)
-                    data = obj['Body'].read()
-                    recap_reprint = pd.read_excel(io.BytesIO(data))
-
-                    recap_reprint = recap_reprint.append({"Tanggal_Ref": new_today, "Nama": MHS, "NIM": NIM, "Judul": JTA,
+                    recap_rep = pd.read_csv(secret.recap_rep)
+                    recap_rep = recap_rep.append({"Tanggal_Ref": new_today, "Nama": MHS, "NIM": NIM, "Judul": JTA,
                     "PBB1_CLO1": DPb11, "PBB1_CLO2": DPb12, "PBB1_CLO3": DPb13,
                     "PBB2_CLO1": DPb21, "PBB2_CLO2": DPb22, "PBB2_CLO3": DPb23,
                     "PNG1_CLO1": DPg11, "PNG1_CLO2": DPg12, "PNG1_CLO3": DPg13,
@@ -582,18 +514,9 @@ def index():
                     "Status": KL, "Tanggal": today, "Waktu": current_time, "Ruangan": ruangan,
                     "Pembimbing 1": pbb1, "Pembimbing 2": pbb2,
                     "Penguji 1": pgj1, "Penguji 2": pgj2}, ignore_index=True)
-
-
+                    recap_rep["Tanggal_Ref"] = pd.to_datetime(recap["Tanggal_Ref"]).dt.date
                     # joblib.dump(recap_reprint, data_recap_reprint)
-                    # save recap to s3
-                    with io.BytesIO() as output:
-                        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                            recap.to_excel(writer, index=None)
-                        data = output.getvalue()
-                    object_name = 'heroku/recap_reprint.xlsx'
-
-                    s3 = boto3.resource('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-                    s3.Bucket(bucket_name).put_object(Key=object_name, Body=data)
+                    dbx.files_upload(recap_rep.to_csv(index=None).encode(), "/recap_rep.csv", mode=dropbox.files.WriteMode.overwrite)
 
                     # recap.to_excel(data_rekap_xlsx, index=None)
                     belum_submit = "0"
@@ -621,8 +544,7 @@ def index():
                     css = ["static/css/bootstrap.min.css","static/style.css"]
                     # uncomment config yang dipilih
                     # config for heroku
-                    config = pdfkit.configuration(wkhtmltopdf='./bin/wkhtmltopdf')
-                    # config = pdfkit.configuration(wkhtmltopdf='./bin/wkhtmltopdf')
+                    config = pdfkit.configuration(wkhtmltopdf="./bin/wkhtmltopdf")
                     pdf = pdfkit.from_string(html, False,configuration=config, css=css)
                     # config for local pc
                     # pdf = pdfkit.from_string(html, False, css=css)
@@ -642,7 +564,8 @@ def index():
 
     if "dataMhs0" in session:
         editable="0"
-        lec_code = joblib.load(data_lecturer)
+        # lec_code = joblib.load(data_lecturer)
+        lec_code = pd.read_csv(secret.lec_code)
         lec_name_list = lec_code.Nama.values.tolist()
         return render_template("index.html", NIM=session['dataMhs0'], MHS=session['dataMhs1'],
                                             JTA=session['dataMhs2'], pbb1=session['dataMhs3'], pbb2=session['dataMhs4'],
@@ -674,24 +597,12 @@ def test():
 
 def cariMhs(nim,passwd_user):
     # [lec_code, schedule] = joblib.load(data_mahasiswa)
-    lec_code = joblib.load(data_lecturer)
-
+    # lec_code = joblib.load(data_lecturer)
+    lec_code = pd.read_csv(secret.lec_code)
     # schedule = joblib.load(data_schedule)
-    # load schedule from s3
-    object_key = 'heroku/schedule.xlsx'
-    s3 = boto3.client('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-    obj = s3.get_object(Bucket=bucket_name, Key=object_key)
-    data = obj['Body'].read()
-    schedule = pd.read_excel(io.BytesIO(data))
-
+    schedule = pd.read_csv(secret.schedule)
     # recap = joblib.load(data_recap)
-    # load recap from s3
-    object_key = 'heroku/recap.xlsx'
-    s3 = boto3.client('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-    obj = s3.get_object(Bucket=bucket_name, Key=object_key)
-    data = obj['Body'].read()
-    recap = pd.read_excel(io.BytesIO(data))
-
+    recap = pd.read_csv(secret.recap)
     nim_list = schedule.NIM.values.tolist()
     recap_nim = recap.NIM.values.tolist()
 
@@ -831,12 +742,9 @@ def indexing(nilai_akhir):
 
 @app.route('/admin/<string:filename>')
 def download_files(filename):
-    bucket = "form-sidang-fif"
-    s3 = boto3.resource('s3', aws_access_key_id=aws_id, aws_secret_access_key=aws_secret)
-    output = f"./{filename}"
-    s3.Bucket(bucket).download_file("heroku/schedule_template.xlsx", output)
-    return send_file(output, as_attachment=True)
-    # return send_from_directory(path_data, filename=filename, as_attachment=True)
+    # filename = "Rekap-Sidang-TA.xlsx"
+    return send_from_directory(path_data,
+                               filename=filename, as_attachment=True)
 
 @app.after_request
 def add_header(r):

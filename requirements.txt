@@ -18,13 +18,10 @@ urllib3==1.25.5
 Werkzeug==0.16.0
 pdfkit
 python-csv
-pandas==1.1.5
+pandas
 numpy
 python-pdf
 statsmodels
 joblib
-openpyxl==3.0.5
-xlrd==1.2.0
-boto3
-botocore
-xlsxwriter
+openpyxl
+xlrd

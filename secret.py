@@ -1,0 +1,6 @@
+TOKEN = "aaVaRSHS0KYAAAAAAAAAASZ5qFHi1Jkq7DohZZNDepmBMplkyh1RY31sVEZ0v98g"
+admin = "https://www.dl.dropboxusercontent.com/s/zrudrusv375jbey/login_admin.csv?dl=0"
+schedule = "https://www.dl.dropboxusercontent.com/s/qc6aoxk55d44knn/schedule.csv?dl=0"
+lec_code = "https://www.dl.dropboxusercontent.com/s/upxy3ty2ww2fmdb/lec_code.csv?dl=0"
+recap = "https://www.dl.dropboxusercontent.com/s/zvkhc3jnjfy18lv/recap.csv?dl=0"
+recap_rep = "https://www.dl.dropboxusercontent.com/s/1kkx8pvqz05qg6q/recap_rep.csv?dl=0"
