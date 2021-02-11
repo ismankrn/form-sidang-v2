@@ -258,6 +258,7 @@ def rekap():
             nim = int(nim)
             if nim in nim_list:
                 sel_data = recap_rep[recap_rep.NIM == nim]
+                sel_data.fillna(0, inplace=True)
                 NIM = nim
                 MHS = sel_data["Nama"].values[0]
                 JTA = sel_data["Judul"].values[0]
@@ -273,12 +274,15 @@ def rekap():
                 DPb22 = sel_data["PBB2_CLO2"].values[0]
                 DPb23 = sel_data["PBB2_CLO3"].values[0]
 
-                DPg11 = sel_data["PBB1_CLO1"].values[0]
-                DPg12 = sel_data["PBB1_CLO2"].values[0]
-                DPg13 = sel_data["PBB1_CLO3"].values[0]
-                DPg21 = sel_data["PBB2_CLO1"].values[0]
-                DPg22 = sel_data["PBB2_CLO2"].values[0]
-                DPg23 = sel_data["PBB2_CLO3"].values[0]
+                if DPb21 == 0:
+                    DPb21 = ""; DPb22 = ""; DPb23 = ""
+
+                DPg11 = sel_data["PNG1_CLO1"].values[0]
+                DPg12 = sel_data["PNG1_CLO2"].values[0]
+                DPg13 = sel_data["PNG1_CLO3"].values[0]
+                DPg21 = sel_data["PNG2_CLO1"].values[0]
+                DPg22 = sel_data["PNG2_CLO2"].values[0]
+                DPg23 = sel_data["PNG2_CLO3"].values[0]
 
                 KL = sel_data["Status"].values[0]
                 date =sel_data["Tanggal"].values[0]
